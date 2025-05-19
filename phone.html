@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Trigger</title>
+    </head>
+    <body>
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script>
+            const socket = io("http://localhost:3000");
+            const room = prompt("Room code?");
+            socket.emit("join-room", room);
+
+            function sendAction() {
+                socket.emit("phone-button-pressed", {
+                    roomCode: room,
+                    payload: { clickedAt: Date.now() },
+                });
+            }
+        </script>
+
+        <button onclick="sendAction()">Press me</button>
+    </body>
+</html>
