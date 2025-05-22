@@ -1,8 +1,13 @@
+import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-const httpServer = createServer();
-const io = new Server(httpServer, { cors: { origin: "*" } });
+const app = express();
+const http = createServer(app);
+
+app.use(express.static("."));
+
+const io = new Server(http, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
     socket.on("join-room", (roomCode) => socket.join(roomCode));
@@ -11,4 +16,4 @@ io.on("connection", (socket) => {
     });
 });
 
-httpServer.listen(3000, "0.0.0.0", () => console.log("Listening on http://localhost:3000"));
+http.listen(3000, () => console.log("Listening on http://localhost:3000"));

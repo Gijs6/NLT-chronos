@@ -8,7 +8,7 @@
     <body>
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
-            const socket = io("http://localhost:3000");
+            const socket = io();
             const room = prompt("Room code?");
             socket.emit("join-room", room);
 
