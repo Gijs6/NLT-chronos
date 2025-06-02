@@ -10,7 +10,15 @@ app.use(express.static("."));
 const io = new Server(http, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
-    socket.on("join-room", (roomCode) => socket.join(roomCode));
+    socket.on("join-room", (roomCode) => {
+        for (const room of socket.rooms) {
+            if (room !== socket.id) {
+                socket.leave(room);
+            }
+        }
+        socket.join(roomCode);
+    });
+
     socket.on("phone-button-pressed", ({ roomCode, payload }) => {
         socket.to(roomCode).emit("trigger-pc-action", payload);
     });

@@ -6,11 +6,29 @@
         <title>Trigger</title>
     </head>
     <body>
+        <span id="code"></span>
+
+        <button onclick="sendAction()">Lees de tijd voor</button>
+        <button onclick="reset_room()">Andere code gebruiken</button>
+
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
             const socket = io();
-            const room = prompt("Room code?");
-            socket.emit("join-room", room);
+
+            function set_room(room_code) {
+                localStorage.setItem("room_phone", room_code);
+                document.getElementById("code").innerHTML = room_code;
+                socket.emit("join-room", room_code);
+            }
+
+            if (localStorage.getItem("room_phone") !== null) {
+                var room = localStorage.getItem("room_phone");
+            } else {
+                var room = prompt("Room code");
+                localStorage.setItem("room_phone", room);
+            }
+
+            set_room(room);
 
             function sendAction() {
                 socket.emit("phone-button-pressed", {
@@ -18,8 +36,11 @@
                     payload: { clickedAt: Date.now() },
                 });
             }
-        </script>
 
-        <button onclick="sendAction()">Press me</button>
+            function reset_room() {
+                let room = prompt("Room code");
+                set_room(room);
+            }
+        </script>
     </body>
 </html>

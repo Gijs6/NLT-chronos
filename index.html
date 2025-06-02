@@ -14,17 +14,27 @@
                 font-family: "Martian Mono";
                 background: black;
                 color: white;
-                font-weight: 700;
-                font-size: 10em;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 height: 100vh;
                 margin: 0;
             }
+
+            #time {
+                font-weight: 700;
+                font-size: 10em;
+            }
+
+            #code {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+            }
         </style>
     </head>
     <body>
+        <span id="code"></span>
         <span id="time"></span>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -44,10 +54,22 @@
             }, 1000);
 
             const socket = io();
-            const room = prompt("Room code?");
+
+            // I really don't like using var, but here I just need the weird funky behaviour
+
+            if (localStorage.getItem("room") !== null) {
+                var room = localStorage.getItem("room");
+            } else {
+                var room = Math.random().toString(36).slice(2, 5);
+                localStorage.setItem("room", room);
+            }
+
+            document.getElementById("code").innerText = room;
+
             socket.emit("join-room", room);
 
             socket.on("trigger-pc-action", (payload) => {
+                console.log("lolzzz");
                 var msg = new SpeechSynthesisUtterance();
                 msg.text = `Het is nu ${element.innerHTML}`;
                 msg.volume = 1;
