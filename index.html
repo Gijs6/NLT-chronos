@@ -36,6 +36,7 @@
     <body>
         <span id="code"></span>
         <span id="time"></span>
+        <button onclick="enableSpeech()">Enable Speech</button>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
@@ -77,6 +78,11 @@
                 msg.lang = "nl";
                 window.speechSynthesis.speak(msg);
             });
+
+            function enableSpeech() {
+                // This "unlocks" audio for many browsers
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance("Spraak ingeschakeld"));
+            }
         </script>
     </body>
 </html>
