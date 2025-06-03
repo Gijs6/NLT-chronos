@@ -4,10 +4,39 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Trigger</title>
+        <link href="/base.css" rel="stylesheet" />
+
+        <style>
+            button {
+                padding: 50px;
+                border: none;
+                font: inherit;
+                background: white;
+            }
+
+            body {
+                display: flex;
+                flex-direction: column;
+                padding: 100px;
+                gap: 50px;
+                justify-content: center;
+            }
+
+            #code {
+                font-size: 2em;
+                font-weight: 900;
+            }
+
+            button:hover {
+                opacity: 1;
+                background: white;
+                font-size: 1.25em;
+            }
+        </style>
     </head>
     <body>
-        <span id="code"></span>
-        <button onclick="sendAction()">Lees de tijd voor</button>
+        <span id="code-container">Momenteel verbonden met <span id="code">geen enkele room</span></span>
+        <button onclick="sendAction()">Tijd voorlezen</button>
         <button onclick="resetRoom()">Andere code gebruiken</button>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>

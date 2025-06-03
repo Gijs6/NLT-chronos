@@ -1,0 +1,15 @@
+* {
+    transition: 300ms all ease;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Martian Mono";
+    background: black;
+    color: white;
+    font-weight: 600;
+    font-size: 3em;
+    height: 100vh;
+}

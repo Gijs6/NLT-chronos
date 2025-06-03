@@ -16,6 +16,8 @@ io.on("connection", (socket) => {
         for (const room of socket.rooms) {
             if (room !== socket.id) {
                 socket.leave(room);
+                const sockets = await io.in(room).fetchSockets();
+                socket.to(room).emit("room-size", sockets.length);
             }
         }
 
