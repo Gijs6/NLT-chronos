@@ -7,39 +7,49 @@
     </head>
     <body>
         <span id="code"></span>
-
         <button onclick="sendAction()">Lees de tijd voor</button>
-        <button onclick="reset_room()">Andere code gebruiken</button>
+        <button onclick="resetRoom()">Andere code gebruiken</button>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
             const socket = io();
+            let room;
+            let hasJoined = false;
 
-            function set_room(room_code) {
-                localStorage.setItem("room_phone", room_code);
-                document.getElementById("code").innerHTML = room_code;
-                socket.emit("join-room", room_code);
-            }
-
-            if (localStorage.getItem("room_phone") !== null) {
-                var room = localStorage.getItem("room_phone");
-            } else {
-                var room = prompt("Room code");
+            function setRoom(roomCode) {
+                room = roomCode;
                 localStorage.setItem("room_phone", room);
+                document.getElementById("code").innerText = room;
+                socket.emit("join-room", { roomCode: room });
             }
 
-            set_room(room);
+            const savedRoom = localStorage.getItem("room_phone");
+            if (savedRoom) {
+                setRoom(savedRoom);
+            } else {
+                setRoom(prompt("Room code"));
+            }
+
+            socket.on("join-success", () => {
+                hasJoined = true;
+                console.log("Phone joined room:", room);
+            });
 
             function sendAction() {
+                if (!hasJoined) {
+                    console.warn("Not yet joined room");
+                    return;
+                }
+
                 socket.emit("phone-button-pressed", {
                     roomCode: room,
                     payload: { clickedAt: Date.now() },
                 });
             }
 
-            function reset_room() {
-                let room = prompt("Room code");
-                set_room(room);
+            function resetRoom() {
+                const newRoom = prompt("Room code");
+                if (newRoom) setRoom(newRoom);
             }
         </script>
     </body>

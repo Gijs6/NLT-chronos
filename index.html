@@ -36,51 +36,51 @@
     <body>
         <span id="code"></span>
         <span id="time"></span>
+        <span id="status"></span>
         <button onclick="enableSpeech()">Enable Speech</button>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
-            const element = document.getElementById("time");
+            const timeElement = document.getElementById("time");
+            const status = document.getElementById("status");
 
             function updateTime() {
                 const now = new Date();
-
-                element.innerHTML = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+                timeElement.innerHTML = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
             }
 
             updateTime();
-
-            setInterval(() => {
-                updateTime();
-            }, 1000);
+            setInterval(updateTime, 1000);
 
             const socket = io();
 
-            // I really don't like using var, but here I just need the weird funky behaviour
-
-            if (localStorage.getItem("room") !== null) {
-                var room = localStorage.getItem("room");
-            } else {
-                var room = Math.random().toString(36).slice(2, 5);
+            let room = localStorage.getItem("room");
+            if (!room) {
+                room = Math.random().toString(36).slice(2, 5);
                 localStorage.setItem("room", room);
             }
 
             document.getElementById("code").innerText = room;
+            status.innerText = `Joining room ${room}...`;
+            socket.emit("join-room", { roomCode: room });
 
-            socket.emit("join-room", room);
+            socket.on("join-success", () => {
+                status.innerText = `Joined room ${room}!`;
+            });
 
-            socket.on("trigger-pc-action", (payload) => {
-                console.log("lolzzz");
-                var msg = new SpeechSynthesisUtterance();
-                msg.text = `Het is nu ${element.innerHTML}`;
+            socket.on("trigger-pc-action", () => {
+                const msg = new SpeechSynthesisUtterance(`Het is nu ${timeElement.innerHTML}`);
                 msg.volume = 1;
-                msg.rate = 1.25;
+                msg.rate = 1;
                 msg.lang = "nl";
                 window.speechSynthesis.speak(msg);
             });
 
+            socket.on("room-size", (size) => {
+                status.innerText = `Currently ${size - 1} devices connected.`;
+            });
+
             function enableSpeech() {
-                // This "unlocks" audio for many browsers
                 window.speechSynthesis.speak(new SpeechSynthesisUtterance("Spraak ingeschakeld"));
             }
         </script>
