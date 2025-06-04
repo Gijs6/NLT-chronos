@@ -8,7 +8,7 @@ button {
 body {
     display: flex;
     flex-direction: column;
-    padding: 100px;
+    padding: 50px;
     gap: 50px;
     justify-content: center;
 }
@@ -22,4 +22,17 @@ button:hover {
     opacity: 1;
     background: white;
     font-size: 1.25em;
+}
+
+@media (max-width: 400px) {
+    body {
+        padding: 25px;
+        font-size: 2em;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    button {
+        padding: 10px;
+    }
 }

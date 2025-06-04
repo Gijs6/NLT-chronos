@@ -56,7 +56,48 @@
                     const voices = speechSynthesis.getVoices();
                     const dutchVoice = voices.find((v) => v.lang.startsWith("nl"));
 
-                    const msg = new SpeechSynthesisUtterance(`Het is nu ${timeElement.innerHTML}`);
+                    const now = new Date();
+                    const hours = now.getHours();
+                    const minutes = now.getMinutes();
+
+                    let humanTime;
+
+                    let displayHour = hours % 12 === 0 ? 12 : hours % 12;
+                    let nextHour = (hours + 1) % 12 === 0 ? 12 : (hours + 1) % 12;
+
+                    let dayPart;
+                    if (hours >= 6 && hours < 12) {
+                        dayPart = "'s ochtends";
+                    } else if (hours >= 12 && hours < 18) {
+                        dayPart = "'s middags";
+                    } else if (hours >= 18 && hours < 24) {
+                        dayPart = "'s avonds";
+                    } else {
+                        dayPart = "'s nachts";
+                    }
+
+                    if (minutes === 0) {
+                        humanTime = `${displayHour} uur ${dayPart}`;
+                    } else if (minutes === 15) {
+                        humanTime = `kwart over ${displayHour} ${dayPart}`;
+                    } else if (minutes === 30) {
+                        humanTime = `half ${nextHour} ${dayPart}`;
+                    } else if (minutes === 45) {
+                        humanTime = `kwart voor ${nextHour} ${dayPart}`;
+                    } else if (minutes < 15) {
+                        humanTime = `${minutes} over ${displayHour} ${dayPart}`;
+                    } else if (minutes < 30) {
+                        const minsBeforeHalf = 30 - minutes;
+                        humanTime = `${minsBeforeHalf} voor half ${nextHour} ${dayPart}`;
+                    } else if (minutes > 30 && minutes < 45) {
+                        const minsAfterHalf = minutes - 30;
+                        humanTime = `${minsAfterHalf} over half ${nextHour} ${dayPart}`;
+                    } else {
+                        const minsBeforeNext = 60 - minutes;
+                        humanTime = `${minsBeforeNext} voor ${nextHour} ${dayPart}`;
+                    }
+
+                    const msg = new SpeechSynthesisUtterance(`Het is nu ${humanTime}`);
                     msg.volume = 1;
                     msg.rate = 1;
                     msg.lang = "nl-NL";

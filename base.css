@@ -11,5 +11,5 @@ body {
     color: white;
     font-weight: 600;
     font-size: 3em;
-    height: 100vh;
+    min-height: 100vh;
 }
