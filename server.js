@@ -5,6 +5,13 @@ import { Server } from "socket.io";
 const app = express();
 const http = createServer(app);
 
+app.use((req, res, next) => {
+    if (!req.path.includes('.') && req.path !== '/') {
+        req.url += '.html';
+    }
+    next();
+});
+
 app.use(express.static("."));
 
 const io = new Server(http, { cors: { origin: "*" } });
@@ -31,9 +38,9 @@ io.on("connection", (socket) => {
         io.in(roomCode).emit("room-size", sockets.length);
     });
 
-    socket.on("phone-button-pressed", ({ roomCode, payload }) => {
+    socket.on("read-time-activate", ({ roomCode, payload }) => {
         console.log(`Phone button pressed for room ${roomCode}`, payload);
-        socket.to(roomCode).emit("trigger-pc-action", payload);
+        socket.to(roomCode).emit("read-time-trigger", payload);
     });
 
     socket.on("disconnect", async () => {

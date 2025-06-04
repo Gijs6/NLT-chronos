@@ -1,0 +1,58 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#time {
+    font-weight: 700;
+    font-size: min(16vw, 10em);
+}
+
+#status,
+#code {
+    position: absolute;
+    top: 10px;
+    font-size: 0.75em;
+}
+
+#code {
+    left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+#status {
+    right: 10px;
+    text-align: right;
+    margin-left: 75px;
+}
+
+#code.big {
+    font-size: 2em;
+    width: 100%;
+    background: #8c0000;
+    left: 0;
+    bottom: 0;
+    gap: 1ch;
+    text-align: center;
+    top: unset;
+    padding: 40px;
+}
+
+#code span {
+    display: none;
+}
+
+#code.big span {
+    display: unset;
+}
+
+#code.big strong {
+    font-size: 1.75em;
+    font-weight: 900;
+}

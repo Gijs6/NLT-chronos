@@ -1,0 +1,25 @@
+button {
+    padding: 50px;
+    border: none;
+    font: inherit;
+    background: white;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    padding: 100px;
+    gap: 50px;
+    justify-content: center;
+}
+
+#code {
+    font-size: 2em;
+    font-weight: 900;
+}
+
+button:hover {
+    opacity: 1;
+    background: white;
+    font-size: 1.25em;
+}

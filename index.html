@@ -10,66 +10,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet" />
 
         <link href="/base.css" rel="stylesheet" />
-        <style>
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            #time {
-                font-weight: 700;
-                font-size: min(max(2em, 17vw), 6em);
-            }
-
-            #status,
-            #code {
-                position: absolute;
-                top: 10px;
-                font-size: 0.75em;
-            }
-
-            #code {
-                left: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: row;
-                flex-wrap: wrap;
-                align-content: center;
-            }
-
-            #status {
-                right: 10px;
-                text-align: right;
-                margin-left: 75px;
-            }
-
-            #code.big {
-                font-size: 2em;
-                width: 100%;
-                background: #8c0000;
-                left: 0;
-                bottom: 0;
-                gap: 1ch;
-                text-align: center;
-                top: unset;
-                padding: 40px;
-            }
-
-            #code span {
-                display: none;
-            }
-
-            #code.big span {
-                display: unset;
-            }
-
-            #code.big strong {
-                font-size: 1.75em;
-                font-weight: 900;
-            }
-        </style>
+        <link href="/clock.css" rel="stylesheet" />
     </head>
     <body>
         <span id="code">Code genereren...</span>
@@ -81,6 +22,8 @@
             const timeElement = document.getElementById("time");
             const status = document.getElementById("status");
             const code = document.getElementById("code");
+
+            speechSynthesis.getVoices();
 
             function updateTime() {
                 const now = new Date();
@@ -106,12 +49,31 @@
                 status.innerText = `Verbonden met ${room}!`;
             });
 
-            socket.on("trigger-pc-action", () => {
-                const msg = new SpeechSynthesisUtterance(`Het is nu ${timeElement.innerHTML}`);
-                msg.volume = 1;
-                msg.rate = 1;
-                msg.lang = "nl";
-                window.speechSynthesis.speak(msg);
+            socket.on("read-time-trigger", () => {
+                console.log("Time!");
+
+                const speak = () => {
+                    const voices = speechSynthesis.getVoices();
+                    const dutchVoice = voices.find((v) => v.lang.startsWith("nl"));
+
+                    const msg = new SpeechSynthesisUtterance(`Het is nu ${timeElement.innerHTML}`);
+                    msg.volume = 1;
+                    msg.rate = 1;
+                    msg.lang = "nl-NL";
+                    if (dutchVoice) msg.voice = dutchVoice;
+
+                    window.speechSynthesis.speak(msg);
+                };
+
+                if (speechSynthesis.getVoices().length > 0) {
+                    console.log("Speaing...");
+                    speak();
+                } else {
+                    console.log("Waiting...");
+                    speechSynthesis.onvoiceschanged = () => {
+                        speak();
+                    };
+                }
             });
 
             socket.on("room-size", (size) => {
@@ -122,10 +84,6 @@
                     code.classList.add("big");
                 }
             });
-
-            function enableSpeech() {
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance("Spraak ingeschakeld"));
-            }
         </script>
     </body>
 </html>

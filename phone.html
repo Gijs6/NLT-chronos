@@ -4,35 +4,9 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Trigger</title>
+
         <link href="/base.css" rel="stylesheet" />
-
-        <style>
-            button {
-                padding: 50px;
-                border: none;
-                font: inherit;
-                background: white;
-            }
-
-            body {
-                display: flex;
-                flex-direction: column;
-                padding: 100px;
-                gap: 50px;
-                justify-content: center;
-            }
-
-            #code {
-                font-size: 2em;
-                font-weight: 900;
-            }
-
-            button:hover {
-                opacity: 1;
-                background: white;
-                font-size: 1.25em;
-            }
-        </style>
+        <link href="/phone.css" rel="stylesheet" />
     </head>
     <body>
         <span id="code-container">Momenteel verbonden met <span id="code">geen enkele room</span></span>
@@ -70,7 +44,7 @@
                     return;
                 }
 
-                socket.emit("phone-button-pressed", {
+                socket.emit("read-time-activate", {
                     roomCode: room,
                     payload: { clickedAt: Date.now() },
                 });
