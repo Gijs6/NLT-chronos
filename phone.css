@@ -24,6 +24,10 @@ button:hover {
     font-size: 1.25em;
 }
 
+button:active {
+    font-size: .5em;
+}
+
 @media (max-width: 400px) {
     body {
         padding: 25px;
