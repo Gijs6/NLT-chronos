@@ -5,37 +5,46 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Trigger</title>
 
-        <link href="/base.css" rel="stylesheet" />
-        <link href="/phone.css" rel="stylesheet" />
+        <link href="/styles/base.css" rel="stylesheet" />
+        <link href="/styles/phone.css" rel="stylesheet" />
     </head>
     <body>
-        <span id="code-container">Momenteel verbonden met <span id="code">geen enkele room</span></span>
+        <span id="code-container"> Momenteel verbonden met <span id="code">geen enkele room</span> </span>
         <button onclick="sendAction()">Tijd voorlezen</button>
         <button onclick="resetRoom()">Andere code gebruiken</button>
 
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
             const socket = io();
-            let room;
+            let room = null;
             let hasJoined = false;
+
+            const codeElement = document.getElementById("code");
+            const readButton = document.getElementById("read-btn");
+            const resetButton = document.getElementById("reset-btn");
 
             function setRoom(roomCode) {
                 room = roomCode;
                 localStorage.setItem("room_phone", room);
-                document.getElementById("code").innerText = room;
-                socket.emit("join-room", { roomCode: room });
+                codeElement.textContent = room;
+                socket.emit("join-room", { roomCode });
+            }
+
+            function promptForRoom() {
+                const input = prompt("Room code");
+                if (input) setRoom(input);
             }
 
             const savedRoom = localStorage.getItem("room_phone");
             if (savedRoom) {
                 setRoom(savedRoom);
             } else {
-                setRoom(prompt("Room code"));
+                promptForRoom();
             }
 
             socket.on("join-success", () => {
                 hasJoined = true;
-                console.log("Phone joined room:", room);
+                console.log("Joined room:", room);
             });
 
             function sendAction() {
@@ -43,7 +52,6 @@
                     console.warn("Not yet joined room");
                     return;
                 }
-
                 socket.emit("read-time-activate", {
                     roomCode: room,
                     payload: { clickedAt: Date.now() },
@@ -51,8 +59,7 @@
             }
 
             function resetRoom() {
-                const newRoom = prompt("Room code");
-                if (newRoom) setRoom(newRoom);
+                promptForRoom();
             }
         </script>
     </body>

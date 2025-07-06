@@ -9,8 +9,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet" />
 
-        <link href="/base.css" rel="stylesheet" />
-        <link href="/clock.css" rel="stylesheet" />
+        <link href="/styles/base.css" rel="stylesheet" />
+        <link href="/styles/clock.css" rel="stylesheet" />
     </head>
     <body>
         <span id="code">Code genereren...</span>
@@ -20,14 +20,15 @@
         <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script>
             const timeElement = document.getElementById("time");
-            const status = document.getElementById("status");
-            const code = document.getElementById("code");
+            const statusElement = document.getElementById("status");
+            const codeElement = document.getElementById("code");
 
-            speechSynthesis.getVoices();
+            function formatTime(date) {
+                return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+            }
 
             function updateTime() {
-                const now = new Date();
-                timeElement.innerHTML = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+                timeElement.textContent = formatTime(new Date());
             }
 
             updateTime();
@@ -41,29 +42,25 @@
                 localStorage.setItem("room", room);
             }
 
-            code.innerHTML = `<span>Gebruik de code</span><strong>${room}</strong>`;
-            status.innerText = `Proberen te verbinden met ${room}...`;
+            codeElement.innerHTML = `<span>Gebruik de code</span><strong>${room}</strong>`;
+            statusElement.textContent = `Proberen te verbinden met ${room}...`;
             socket.emit("join-room", { roomCode: room });
 
             socket.on("join-success", () => {
-                status.innerText = `Verbonden met ${room}!`;
+                statusElement.textContent = `Verbonden met ${room}!`;
             });
 
             socket.on("read-time-trigger", () => {
-                console.log("Time!");
-
-                const speak = () => {
+                const speakTime = () => {
                     const voices = speechSynthesis.getVoices();
-                    const dutchVoice = voices.find((v) => v.lang.startsWith("nl"));
+                    const dutchVoice = voices.find((voice) => voice.lang.startsWith("nl"));
 
                     const now = new Date();
                     const hours = now.getHours();
                     const minutes = now.getMinutes();
 
-                    let humanTime;
-
-                    let displayHour = hours % 12 === 0 ? 12 : hours % 12;
-                    let nextHour = (hours + 1) % 12 === 0 ? 12 : (hours + 1) % 12;
+                    const displayHour = hours % 12 === 0 ? 12 : hours % 12;
+                    const nextHour = (hours + 1) % 12 === 0 ? 12 : (hours + 1) % 12;
 
                     let dayPart;
                     if (hours >= 6 && hours < 12) {
@@ -76,6 +73,7 @@
                         dayPart = "'s nachts";
                     }
 
+                    let humanTime;
                     if (minutes === 0) {
                         humanTime = `${displayHour} uur ${dayPart}`;
                     } else if (minutes === 15) {
@@ -87,43 +85,33 @@
                     } else if (minutes < 15) {
                         humanTime = `${minutes} over ${displayHour} ${dayPart}`;
                     } else if (minutes < 30) {
-                        const minsBeforeHalf = 30 - minutes;
-                        humanTime = `${minsBeforeHalf} voor half ${nextHour} ${dayPart}`;
-                    } else if (minutes > 30 && minutes < 45) {
-                        const minsAfterHalf = minutes - 30;
-                        humanTime = `${minsAfterHalf} over half ${nextHour} ${dayPart}`;
+                        humanTime = `${30 - minutes} voor half ${nextHour} ${dayPart}`;
+                    } else if (minutes < 45) {
+                        humanTime = `${minutes - 30} over half ${nextHour} ${dayPart}`;
                     } else {
-                        const minsBeforeNext = 60 - minutes;
-                        humanTime = `${minsBeforeNext} voor ${nextHour} ${dayPart}`;
+                        humanTime = `${60 - minutes} voor ${nextHour} ${dayPart}`;
                     }
 
-                    const msg = new SpeechSynthesisUtterance(`Het is nu ${humanTime}`);
-                    msg.volume = 1;
-                    msg.rate = 1;
-                    msg.lang = "nl-NL";
-                    if (dutchVoice) msg.voice = dutchVoice;
+                    const utterance = new SpeechSynthesisUtterance(`Het is nu ${humanTime}`);
+                    utterance.volume = 1;
+                    utterance.rate = 1;
+                    utterance.lang = "nl-NL";
+                    if (dutchVoice) utterance.voice = dutchVoice;
 
-                    window.speechSynthesis.speak(msg);
+                    speechSynthesis.speak(utterance);
                 };
 
                 if (speechSynthesis.getVoices().length > 0) {
-                    console.log("Speaing...");
-                    speak();
+                    speakTime();
                 } else {
-                    console.log("Waiting...");
-                    speechSynthesis.onvoiceschanged = () => {
-                        speak();
-                    };
+                    speechSynthesis.onvoiceschanged = speakTime;
                 }
             });
 
             socket.on("room-size", (size) => {
-                status.innerText = `${size - 1} verbinding(en)`;
-                if (size - 1 > 0) {
-                    code.classList.remove("big");
-                } else {
-                    code.classList.add("big");
-                }
+                const otherConnections = size - 1;
+                statusElement.textContent = `${otherConnections} verbinding(en)`;
+                codeElement.classList.toggle("big", otherConnections === 0);
             });
         </script>
     </body>
